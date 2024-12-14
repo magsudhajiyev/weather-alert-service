@@ -26,12 +26,12 @@ services:
             DB_PASSWORD: ${DB_PASSWORD:-password}
         volumes:
             - '.:/var/www/html'
-            - './docker/entrypoint.sh:/entrypoint.sh'  # Mount the entrypoint script
+            - './docker/entrypoint.sh:/entrypoint.sh' 
         networks:
             - sail
         depends_on:
             - mysql
-        entrypoint: ["/bin/bash", "/entrypoint.sh"]  # Use custom entrypoint
+        entrypoint: ["/bin/bash", "/entrypoint.sh"] 
     
     mysql:
         image: 'mysql/mysql-server:8.0'
