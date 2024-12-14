@@ -3,20 +3,26 @@
 namespace App\Livewire;
 
 use App\Models\City;
-use App\Models\AlertSetting;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use App\Contracts\Services\WeatherServiceInterface;
+use App\Contracts\Repositories\AlertSettingsRepositoryInterface;
 
 class WeatherDashboard extends Component
 {
     public $selectedCity = '';
     public $cities = [];
-    public $weatherData = null;
+    public $weatherData = [];  // Changed to array
     public $error = '';
+    
+    private WeatherServiceInterface $weatherService;
+    private AlertSettingsRepositoryInterface $alertSettingsRepository;
 
-    protected $rules = [
-        'selectedCity' => 'required|exists:cities,id',
-    ];
+    public function boot(WeatherServiceInterface $weatherService, AlertSettingsRepositoryInterface $alertSettingsRepository)
+    {
+        $this->weatherService = $weatherService;
+        $this->alertSettingsRepository = $alertSettingsRepository;
+    }
 
     public function mount()
     {
@@ -34,42 +40,43 @@ class WeatherDashboard extends Component
     {
         try {
             $city = City::findOrFail($this->selectedCity);
+            $weatherDTO = $this->weatherService->getCurrentWeather($city);
             
-            // Here we'll integrate with weather API
-            // For now, using placeholder data
+            // Convert DTO to array for Livewire
             $this->weatherData = [
-                'precipitation' => 25.5,
-                'uv_index' => 7.2,
-                'city_name' => $city->name,
+                'precipitation' => $weatherDTO->precipitation,
+                'uv_index' => $weatherDTO->uvIndex,
+                'city_name' => $weatherDTO->cityName,
+                'country_code' => $weatherDTO->countryCode,
             ];
-
+            
             $this->error = '';
         } catch (\Exception $e) {
             $this->error = 'Unable to load weather data. Please try again.';
-            $this->weatherData = null;
+            $this->weatherData = [];
         }
     }
 
     public function enableAlerts()
     {
-        $this->validate();
+        $this->validate([
+            'selectedCity' => 'required|exists:cities,id',
+        ]);
 
-        $user = Auth::user();
-        
-        // Create or update alert settings
-        AlertSetting::updateOrCreate(
-            [
-                'user_id' => $user->id,
-                'city_id' => $this->selectedCity,
-            ],
-            [
+        try {
+            $user = Auth::user();
+            $city = City::findOrFail($this->selectedCity);
+            
+            $this->alertSettingsRepository->createOrUpdate($user, $city, [
                 'precipitation_threshold' => 25.0, // Default threshold
                 'uv_index_threshold' => 6.0,      // Default threshold
                 'is_active' => true,
-            ]
-        );
+            ]);
 
-        session()->flash('message', 'Weather alerts enabled successfully!');
+            session()->flash('message', 'Weather alerts enabled successfully!');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Failed to enable weather alerts. Please try again.');
+        }
     }
 
     public function render()
