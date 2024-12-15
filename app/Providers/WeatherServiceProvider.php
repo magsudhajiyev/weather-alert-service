@@ -7,7 +7,7 @@ use App\Contracts\Services\WeatherServiceInterface;
 use App\Contracts\Services\NotificationServiceInterface;
 use App\Contracts\Repositories\AlertSettingsRepositoryInterface;
 use App\Contracts\Repositories\WeatherAlertRepositoryInterface;
-use App\Services\Weather\OpenWeatherMapService;
+use App\Services\Weather\OpenMeteoService;
 use App\Services\Notifications\EmailNotificationService;
 use App\Repositories\AlertSettingsRepository;
 use App\Repositories\WeatherAlertRepository;
@@ -21,15 +21,13 @@ class WeatherServiceProvider extends ServiceProvider
     {
         // Weather Service binding
         $this->app->bind(WeatherServiceInterface::class, function ($app) {
-            return new OpenWeatherMapService(
-                config('services.openweathermap.key', '')
-            );
+            return new OpenMeteoService();
         });
 
         // Notification Service binding
         $this->app->bind(NotificationServiceInterface::class, EmailNotificationService::class);
 
-        // Repository bindings
+        // Repository bindings - using concrete implementations
         $this->app->bind(AlertSettingsRepositoryInterface::class, function ($app) {
             return new AlertSettingsRepository();
         });

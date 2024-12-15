@@ -8,27 +8,36 @@ class WeatherData
         public readonly float $precipitation,
         public readonly float $uvIndex,
         public readonly string $cityName,
-        public readonly string $countryCode
+        public readonly string $countryCode,
+        public readonly string $description
     ) {}
 
-    public static function fromArray(array $data): self
-    {
-        return new self(
-            precipitation: $data['precipitation'] ?? 0.0,
-            uvIndex: $data['uv_index'] ?? 0.0,
-            cityName: $data['city_name'],
-            countryCode: $data['country_code']
-        );
-    }
-
-    // Helper method to get data as array if needed
     public function toArray(): array
     {
         return [
             'precipitation' => $this->precipitation,
             'uv_index' => $this->uvIndex,
             'city_name' => $this->cityName,
-            'country_code' => $this->countryCode
+            'country_code' => $this->countryCode,
+            'description' => $this->description
         ];
+    }
+
+    public function getPrecipitationText(): string
+    {
+        return "{$this->precipitation} mm/h";
+    }
+
+    public function getUVText(): string
+    {
+        if ($this->uvIndex >= 8) {
+            return "Very High ({$this->uvIndex})";
+        } elseif ($this->uvIndex >= 6) {
+            return "High ({$this->uvIndex})";
+        } elseif ($this->uvIndex >= 3) {
+            return "Moderate ({$this->uvIndex})";
+        } else {
+            return "Low ({$this->uvIndex})";
+        }
     }
 }

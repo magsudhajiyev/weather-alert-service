@@ -7,12 +7,13 @@ use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use App\Contracts\Services\WeatherServiceInterface;
 use App\Contracts\Repositories\AlertSettingsRepositoryInterface;
+use Illuminate\Support\Facades\Log;
 
 class WeatherDashboard extends Component
 {
     public $selectedCity = '';
     public $cities = [];
-    public $weatherData = [];  // Changed to array
+    public $weatherData = [];
     public $error = '';
     
     private WeatherServiceInterface $weatherService;
@@ -33,6 +34,9 @@ class WeatherDashboard extends Component
     {
         if ($value) {
             $this->loadWeatherData();
+        } else {
+            $this->weatherData = [];
+            $this->error = '';
         }
     }
 
@@ -48,10 +52,21 @@ class WeatherDashboard extends Component
                 'uv_index' => $weatherDTO->uvIndex,
                 'city_name' => $weatherDTO->cityName,
                 'country_code' => $weatherDTO->countryCode,
+                'description' => $weatherDTO->description
             ];
+            
+            Log::info('Weather data loaded successfully', [
+                'city' => $city->name,
+                'data' => $this->weatherData
+            ]);
             
             $this->error = '';
         } catch (\Exception $e) {
+            Log::error('Error loading weather data', [
+                'error' => $e->getMessage(),
+                'city_id' => $this->selectedCity
+            ]);
+            
             $this->error = 'Unable to load weather data. Please try again.';
             $this->weatherData = [];
         }
@@ -68,13 +83,18 @@ class WeatherDashboard extends Component
             $city = City::findOrFail($this->selectedCity);
             
             $this->alertSettingsRepository->createOrUpdate($user, $city, [
-                'precipitation_threshold' => 25.0, // Default threshold
-                'uv_index_threshold' => 6.0,      // Default threshold
+                'precipitation_threshold' => 0.1, // Default threshold
+                'uv_index_threshold' => 0.1,      // Default threshold
                 'is_active' => true,
             ]);
 
             session()->flash('message', 'Weather alerts enabled successfully!');
         } catch (\Exception $e) {
+            Log::error('Error enabling alerts', [
+                'error' => $e->getMessage(),
+                'city_id' => $this->selectedCity,
+                'user_id' => Auth::id()
+            ]);
             session()->flash('error', 'Failed to enable weather alerts. Please try again.');
         }
     }
