@@ -24,6 +24,12 @@ services:
             DB_DATABASE: ${DB_DATABASE:-weather_alert_app}
             DB_USERNAME: ${DB_USERNAME:-sail}
             DB_PASSWORD: ${DB_PASSWORD:-password}
+            MAIL_MAILER: 'smtp'
+            MAIL_HOST: 'sandbox.smtp.mailtrap.io'
+            MAIL_PORT: 2525
+            MAIL_USERNAME: 'deeda3f77a94ac'
+            MAIL_PASSWORD: 'f92d701d223af0'
+
         volumes:
             - '.:/var/www/html'
             - './docker/entrypoint.sh:/entrypoint.sh' 
@@ -58,6 +64,28 @@ services:
             retries: 3
             timeout: 5s
 
+    scheduler:
+        image: sail-8.4/app
+        depends_on:
+            - laravel.test
+        volumes:
+            - '.:/var/www/html'
+        environment:
+            WWWUSER: '${WWWUSER}'
+            LARAVEL_SAIL: 1
+            DB_HOST: mysql
+            DB_PORT: 3306
+            DB_DATABASE: ${DB_DATABASE:-weather_alert_app}
+            DB_USERNAME: ${DB_USERNAME:-sail}
+            DB_PASSWORD: ${DB_PASSWORD:-password}
+            MAIL_MAILER: 'smtp'
+            MAIL_HOST: 'sandbox.smtp.mailtrap.io'
+            MAIL_PORT: 2525
+            MAIL_USERNAME: 'deeda3f77a94ac'
+            MAIL_PASSWORD: 'f92d701d223af0'
+        entrypoint: ["/bin/bash", "/var/www/html/docker/scheduler.sh"]
+        networks:
+            - sail
 networks:
     sail:
         driver: bridge
