@@ -26,7 +26,13 @@ To get started with the Weather Alert System, follow these steps:
    ```
 3. Put the database credentials to the .env file
 
-4. Start the application using Laravel Sail:
+4. Install composer:
+
+   ```bash
+   composer install
+   ```
+
+5. Start the application using Laravel Sail:
 
    ```bash
    ./vendor/bin/sail up
