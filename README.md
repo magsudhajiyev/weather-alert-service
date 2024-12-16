@@ -22,7 +22,7 @@ To get started with the Weather Alert System, follow these steps:
 2. Navigate to the project directory:
 
    ```bash
-   cd weather-alert-app
+   cd weather-alert-service
    ```
 3. Put the database credentials to the .env file
 

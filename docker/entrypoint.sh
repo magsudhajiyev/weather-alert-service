@@ -22,13 +22,13 @@ php artisan key:generate
 # Check if node_modules directory exists, if not, install dependencies
 if [ ! -d "node_modules" ]; then
     echo "Installing npm dependencies..."
-    ./vendor/bin/sail npm install
+    npm install
 fi
 
 # Run npm build process to generate Vite assets
 if [ ! -f "public/build/manifest.json" ]; then
     echo "Building Vite assets..."
-    ./vendor/bin/sail npm run build
+    npm run build
 fi
 
 # Clear caches
