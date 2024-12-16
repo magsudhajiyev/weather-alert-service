@@ -24,8 +24,9 @@ To get started with the Weather Alert System, follow these steps:
    ```bash
    cd weather-alert-app
    ```
+3. Put the database credentials to the .env file
 
-3. Start the application using Laravel Sail:
+4. Start the application using Laravel Sail:
 
    ```bash
    ./vendor/bin/sail up
