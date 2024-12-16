@@ -30,7 +30,8 @@ class OpenMeteoService implements WeatherServiceInterface
                 uvIndex: (float) $uvIndex,
                 cityName: $city->name,
                 countryCode: $city->country_code,
-                description: $this->getWeatherDescription($precipitation, $uvIndex)
+                description: $this->getWeatherDescription($precipitation, $uvIndex),
+                cityId: $city->id
             );
         } catch (RequestException $e) {
             Log::error('OpenMeteo API error: ' . $e->getMessage(), [

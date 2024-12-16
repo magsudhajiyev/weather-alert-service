@@ -5,6 +5,7 @@ namespace App\Services\Weather;
 use App\Contracts\Services\WeatherServiceInterface;
 use App\Contracts\Repositories\AlertSettingsRepositoryInterface;
 use App\Mail\WeatherAlert;
+use App\Models\WeatherNotification;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 
@@ -62,6 +63,17 @@ class WeatherAlertService
     private function sendAlert($user, $weatherData, string $alertType, float $threshold): void
     {
         try {
+            // Create in-app notification
+            WeatherNotification::create([
+                'user_id' => $user->id,
+                'city_id' => $weatherData->cityId,  
+                'type' => $alertType,
+                'current_value' => $alertType === 'precipitation' ? $weatherData->precipitation : $weatherData->uvIndex,
+                'threshold_value' => $threshold,
+                'description' => $weatherData->description,
+            ]);
+
+            // Send email notification
             Mail::to($user)->send(new WeatherAlert(
                 user: $user,
                 weatherData: $weatherData,
@@ -73,14 +85,14 @@ class WeatherAlertService
                 'user_id' => $user->id,
                 'city' => $weatherData->cityName,
                 'type' => $alertType,
-                'value' => $alertType === 'precipitation' ? $weatherData->precipitation : $weatherData->uvIndex
             ]);
         } catch (\Exception $e) {
-            Log::error('Failed to send weather alert email', [
+            Log::error('Failed to send weather alert', [
                 'user_id' => $user->id,
                 'city' => $weatherData->cityName,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ]);
         }
-    }
+    }    
 }

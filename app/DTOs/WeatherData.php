@@ -7,6 +7,7 @@ class WeatherData
     public function __construct(
         public readonly float $precipitation,
         public readonly float $uvIndex,
+        public readonly int $cityId,
         public readonly string $cityName,
         public readonly string $countryCode,
         public readonly string $description
