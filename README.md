@@ -22,7 +22,7 @@ To get started with the Weather Alert System, follow these steps:
 2. Navigate to the project directory:
 
    ```bash
-   cd weather-alert-system
+   cd weather-alert-app
    ```
 
 3. Start the application using Laravel Sail:
